@@ -10,11 +10,11 @@ enum {
 };
 
 
-typedef nx_struct BlinkToCommunicationHashMsg {
+typedef nx_struct BlinkToCommunicationAesMsg {
   nx_uint16_t nodeid;
   nx_uint16_t counter;
-  nx_uint8_t hsha1[20]; 
-} BlinkToCommunicationHashMsg;
+  nx_uint8_t aesdata[20]; 
+} BlinkToCommunicationAesMsg;
 
 // the nx_ means that these are external types
 #endif
