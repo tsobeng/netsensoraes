@@ -1,3 +1,3 @@
-COMPONENT=aes.nc
+COMPONENT=BlinkToCommunicationHashAppC
 include $(MAKERULES)
 
