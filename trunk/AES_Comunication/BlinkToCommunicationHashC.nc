@@ -42,11 +42,13 @@ implementation {
   }
 
   event void Boot.booted() {
+  	dbg("aes","Boot of the Application\n");
     call AMControl.start();
   }
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) { // used to control weather the radio has been started successfully
+      dbg("aes","Start the sending operation");
       call Timer0.startPeriodic(TIMER_PERIOD_MILLI);
     }
     else {
@@ -60,17 +62,19 @@ implementation {
   event void Timer0.fired() { // this code refers to the action that should be accomplished when the timer expires
     counter++;
     if (!busy) {
-
-      BlinkToCommunicationHashMsg* btcpkt = 
-	(BlinkToCommunicationHashMsg*)(call Packet.getPayload(&pkt, sizeof(BlinkToCommunicationHashMsg)));
+      BlinkToCommunicationAesMsg* btcpkt = 
+	(BlinkToCommunicationAesMsg*)(call Packet.getPayload(&pkt, sizeof(BlinkToCommunicationAesMsg)));
       if (btcpkt == NULL) {
 	return;
       }
       btcpkt->nodeid = TOS_NODE_ID;
       btcpkt->counter = counter;
+      btcpkt->aesdata[0] = 11;
+      dbg("aes","Create the packet and set the data");
 
       if (call AMSend.send(AM_BROADCAST_ADDR, 
-          &pkt, sizeof(BlinkToCommunicationHashMsg)) == SUCCESS) {
+          &pkt, sizeof(BlinkToCommunicationAesMsg)) == SUCCESS) {
+          dbg("aes","Sending packet");
         busy = TRUE;
       }
     }
@@ -78,13 +82,15 @@ implementation {
 
   event void AMSend.sendDone(message_t* msg, error_t err) {
     if (&pkt == msg) { // used to verify that the intended message has been sent
+      dbg("aes","Packet sent");
       busy = FALSE;
     }
   }
 
   event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
-    if (len == sizeof(BlinkToCommunicationHashMsg)) {
-      BlinkToCommunicationHashMsg* btcpkt = (BlinkToCommunicationHashMsg*)payload;
+    if (len == sizeof(BlinkToCommunicationAesMsg)) {
+      BlinkToCommunicationAesMsg* btcpkt = (BlinkToCommunicationAesMsg*)payload;
+      dbg("aes","Massage receive, value= %d",btcpkt->aesdata[0]);
     }
     return msg;
   }
