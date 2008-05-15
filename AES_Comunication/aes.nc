@@ -30,13 +30,11 @@
  * Date: 09/15/2005
  */
 
-includes sha1;
+includes aes;
 
-interface SHA1 {
+interface AES {
 
-  command int reset(SHA1Context *context);
-  command int update(SHA1Context *context, const uint8_t *message_array, uint32_t length);
-  command int digest(SHA1Context *context, uint8_t Message_Digest[SHA1HashSize]);
-
+  command void aes_enc( aes_context *ctx, unsigned char *key, int keysize );
+  command void aes_dec( aes_context *ctx, unsigned char *key, int keysize );
 
 }
