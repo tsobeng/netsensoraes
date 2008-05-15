@@ -54,7 +54,7 @@ implementation {
   components ActiveMessageC;
   components new AMSenderC(AM_BLINKTOHASH);
   components new AMReceiverC(AM_BLINKTOHASH);
-  components AES;
+  components AESM;
 
 // we wire here the used interfaces to the providing components
   App.Boot -> MainC;
