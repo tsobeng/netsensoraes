@@ -4,7 +4,7 @@ import sys
 
 t = Tossim([])
 r = t.radio()
-f = open("topo.txt", "r")
+f = open("../topo.txt", "r")
 
 lines = f.readlines()
 for line in lines:
@@ -17,7 +17,7 @@ t.addChannel("aes", sys.stdout)
 t.addChannel("com", sys.stdout)
 t.addChannel("boot", sys.stdout)
 
-noise = open("meyer-heavy.txt", "r")
+noise = open("../meyer-heavy.txt", "r")
 lines = noise.readlines()
 for line in lines:
   str = line.strip()
