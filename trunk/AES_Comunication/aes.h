@@ -15,10 +15,6 @@ typedef struct
 }
 aes_context;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /**
  * \brief          AES key schedule (encryption)
  *
@@ -92,9 +88,5 @@ void aes_crypt_cfb( aes_context *ctx,
  * \return         0 if successful, or 1 if the test failed
  */
 int aes_self_test( int verbose );
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* aes.h */
