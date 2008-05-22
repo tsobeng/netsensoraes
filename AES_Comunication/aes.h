@@ -7,7 +7,7 @@
 /**
  * \brief          AES context structure
  */
-typedef struct
+typedef struct aes_context
 {
     int nr;                     /*!<  number of rounds  */
     unsigned long *rk;          /*!<  AES round keys    */

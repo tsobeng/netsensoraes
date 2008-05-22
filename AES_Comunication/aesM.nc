@@ -8,11 +8,13 @@ module AESM {
 implementation {
 
 	 command void AES.aes_enc( aes_context *ctx, unsigned char *key, int keysize ){
-	 	dbg("aes","AES.aes_enc");
+		ctx->buf[0]=ctx->buf[0]+10;
+	 	dbg("aes","AES.aes_enc\n");
 	 }
 	 
  	 command void AES.aes_dec( aes_context *ctx, unsigned char *key, int keysize ){
- 	 	dbg("aes","AES.aes_dec");
+		ctx->buf[0]=ctx->buf[0]-10;
+ 	 	dbg("aes","AES.aes_dec\n");
  	 }
  
 }

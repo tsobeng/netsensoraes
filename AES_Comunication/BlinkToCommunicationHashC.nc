@@ -22,6 +22,7 @@ implementation {
   uint8_t tmp[20];
   uint8_t buf[2];
   uint8_t j;
+  aes_context tmp_struct;
 
   message_t pkt; // initialization of the packet 
   bool busy = FALSE; // variable used to control whether the channel si busy
@@ -69,8 +70,19 @@ implementation {
       }
       btcpkt->nodeid = TOS_NODE_ID;
       btcpkt->counter = counter;
-      btcpkt->aesdata[0] = 22;
-      btcpkt->aesdata[1] = 23;
+      //////////////////////////
+      //TEST AND DEBUG
+      
+      tmp_struct.nr=14;
+      tmp_struct.buf[0] = counter & 0xf0;
+      tmp_struct.buf[1] = counter & 0x0f;
+
+      call  AES.aes_enc(&tmp_struct,"p",1);
+      btcpkt->aesdata[0] = tmp_struct.buf[0];
+      btcpkt->aesdata[1] = tmp_struct.buf[1];
+
+      //TEST AND DEBUG
+      ////////////////////////
       dbg("aes","Create the packet and set the data\n");
 
       if (call AMSend.send(AM_BROADCAST_ADDR, 
@@ -91,7 +103,20 @@ implementation {
   event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
     if (len == sizeof(BlinkToCommunicationAesMsg)) {
       BlinkToCommunicationAesMsg* btcpkt = (BlinkToCommunicationAesMsg*)payload;
-      dbg("aes","Massage receive, value= %d - %d\n",btcpkt->aesdata[0],btcpkt->aesdata[1]);
+     //////////////////////////
+      //TEST AND DEBUG
+      
+      tmp_struct.nr=14;
+      tmp_struct.buf[0] = btcpkt->aesdata[0];
+      tmp_struct.buf[1] = btcpkt->aesdata[1];
+
+      call  AES. aes_dec(&tmp_struct,"p",1);
+      btcpkt->aesdata[0] = tmp_struct.buf[0];
+      btcpkt->aesdata[1] = tmp_struct.buf[1];
+
+      //TEST AND DEBUG
+      ////////////////////////
+      dbg("aes","Massage receive, id= %d value= %d - %d\n",btcpkt->nodeid,btcpkt->aesdata[0],btcpkt->aesdata[1]);
     }
     return msg;
   }
