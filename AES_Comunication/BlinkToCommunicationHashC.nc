@@ -78,8 +78,9 @@ implementation {
       tmp_struct.buf[1] = counter & 0x0f;
 
       call  AES.aes_enc(&tmp_struct,"p",1);
-      btcpkt->aesdata[0] = tmp_struct.buf[0];
-      btcpkt->aesdata[1] = tmp_struct.buf[1];
+      for(j=0;j<20;j++){
+        btcpkt->aesdata[j] = tmp_struct.buf[j];
+      }
 
       //TEST AND DEBUG
       ////////////////////////
@@ -107,13 +108,15 @@ implementation {
       //TEST AND DEBUG
       
       tmp_struct.nr=14;
-      tmp_struct.buf[0] = btcpkt->aesdata[0];
-      tmp_struct.buf[1] = btcpkt->aesdata[1];
+      for(j=0;j<20;j++){
+	tmp_struct.buf[j] = btcpkt->aesdata[j];
+      }
 
-      call  AES. aes_dec(&tmp_struct,"p",1);
-      btcpkt->aesdata[0] = tmp_struct.buf[0];
-      btcpkt->aesdata[1] = tmp_struct.buf[1];
-
+      call  AES.aes_dec(&tmp_struct,"p",1); //Call che decryption function
+      for(j=0;j<20;j++){
+        btcpkt->aesdata[j] = tmp_struct.buf[j];
+      }
+      
       //TEST AND DEBUG
       ////////////////////////
       dbg("aes","Massage receive, id= %d value= %d - %d\n",btcpkt->nodeid,btcpkt->aesdata[0],btcpkt->aesdata[1]);
