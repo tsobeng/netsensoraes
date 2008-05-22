@@ -48,7 +48,7 @@ implementation {
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) { // used to control weather the radio has been started successfully
-      dbg("aes","Start the sending operation");
+      dbg("aes","Start the sending operation\n");
       call Timer0.startPeriodic(TIMER_PERIOD_MILLI);
     }
     else {
@@ -69,12 +69,13 @@ implementation {
       }
       btcpkt->nodeid = TOS_NODE_ID;
       btcpkt->counter = counter;
-      btcpkt->aesdata[0] = 11;
-      dbg("aes","Create the packet and set the data");
+      btcpkt->aesdata[0] = 22;
+      btcpkt->aesdata[1] = 23;
+      dbg("aes","Create the packet and set the data\n");
 
       if (call AMSend.send(AM_BROADCAST_ADDR, 
           &pkt, sizeof(BlinkToCommunicationAesMsg)) == SUCCESS) {
-          dbg("aes","Sending packet");
+          dbg("aes","Sending packet\n");
         busy = TRUE;
       }
     }
@@ -82,7 +83,7 @@ implementation {
 
   event void AMSend.sendDone(message_t* msg, error_t err) {
     if (&pkt == msg) { // used to verify that the intended message has been sent
-      dbg("aes","Packet sent");
+      dbg("aes","Packet sent\n");
       busy = FALSE;
     }
   }
@@ -90,7 +91,7 @@ implementation {
   event message_t* Receive.receive(message_t* msg, void* payload, uint8_t len){
     if (len == sizeof(BlinkToCommunicationAesMsg)) {
       BlinkToCommunicationAesMsg* btcpkt = (BlinkToCommunicationAesMsg*)payload;
-      dbg("aes","Massage receive, value= %d",btcpkt->aesdata[0]);
+      dbg("aes","Massage receive, value= %d - %d\n",btcpkt->aesdata[0],btcpkt->aesdata[1]);
     }
     return msg;
   }
