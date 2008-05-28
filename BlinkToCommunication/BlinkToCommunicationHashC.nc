@@ -123,7 +123,8 @@ implementation {
 
   event void Timer0.fired() { // this code refers to the action that should be accomplished when the timer expires
     counter++;
-    if (!busy) {
+	dbg("aes","-> %d",counter);    
+if (!busy) {
 
       BlinkToCommunicationHashMsg* btcpkt = 
 	(BlinkToCommunicationHashMsg*)(call Packet.getPayload(&pkt, sizeof(BlinkToCommunicationHashMsg)));

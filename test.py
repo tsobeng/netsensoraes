@@ -4,7 +4,8 @@ import sys
 
 t = Tossim([])
 r = t.radio()
-f = open("topo.txt", "r")
+f = open("../topo.txt", "r")
+f_aes = open("aes.txt", "w")
 
 lines = f.readlines()
 for line in lines:
@@ -13,11 +14,12 @@ for line in lines:
     print " ", s[0], " ", s[1], " ", s[2];
     r.add(int(s[0]), int(s[1]), float(s[2]))
 
-t.addChannel("aes", sys.stdout)
+t.addChannel("aes", f_aes)
 t.addChannel("com", sys.stdout)
 t.addChannel("boot", sys.stdout)
+t.addChannel("sys", sys.stdout)
 
-noise = open("meyer-heavy.txt", "r")
+noise = open("../meyer-heavy.txt", "r")
 lines = noise.readlines()
 for line in lines:
   str = line.strip()
@@ -31,8 +33,8 @@ for i in range(1, 4):
   t.getNode(i).createNoiseModel()
 
 t.getNode(1).bootAtTime(100001);
-t.getNode(2).bootAtTime(800008);
-t.getNode(3).bootAtTime(1800009);
+#t.getNode(2).bootAtTime(800008);
+#t.getNode(3).bootAtTime(1800009);
 
-for i in range(0, 1000):
+for i in range(0, 300):
   t.runNextEvent()
