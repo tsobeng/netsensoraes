@@ -14,10 +14,10 @@ for line in lines:
     print " ", s[0], " ", s[1], " ", s[2];
     r.add(int(s[0]), int(s[1]), float(s[2]))
 
-t.addChannel("aes", f_aes)
+t.addChannel("aes", sys.stdout)
 t.addChannel("com", sys.stdout)
 t.addChannel("boot", sys.stdout)
-t.addChannel("boot", sys.stdout)
+t.addChannel("sys", sys.stdout)
 
 noise = open("../meyer-heavy.txt", "r")
 lines = noise.readlines()
