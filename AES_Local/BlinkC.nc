@@ -46,11 +46,14 @@ module BlinkC
 }
 implementation
 {
-  aes_context context;
-  unsigned char key[128];
   //should use 1 buffer for saving memory
-  unsigned char buffer_crypt[16];
-  unsigned char buffer_decrypt[16];
+  unsigned char input[16]= {0x50,0x68,0x12,0xA4,0x5F,0x08,0xC8,0x89,0xB9,0x7F,0x59,0x80,0x03,0x8B,0x83,0x59};
+  unsigned char output[16];
+  int expandedKeySize,i;
+  int size;
+  unsigned char key[16] = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
+  unsigned char expandedKey[176];
+
   event void Boot.booted()
   {
     dbg("aes","Boot of the Application\n");
@@ -59,16 +62,91 @@ implementation
       
     
      // key should be inizialized..	
-     memset(key,0,128);
-     //use static key c4c3cd5eeaf44520609947503a7aa9ed1cffe019426ec40cdfd0d328bfa6b48c8e1985aa9f52b0f6e5ffb110ae641701beb466c9d713a995aad65b595ee5d988
-     strncpy(key,"c4c3cd5eeaf44520609947503a7aa9ed1cffe019426ec40cdfd0d328bfa6b48c8e1985aa9f52b0f6e5ffb110ae641701beb466c9d713a995aad65b595ee5d988",128);
-     call AES.aes_set_key_enc(&context,key,128);
-     call AES.aes_set_key_dec(&context,key,128);
-     //crypt to buffer_crypt input
-     call AES.aes_enc(&context,"test_data_16char",buffer_crypt);
-     //decrypt to buffer_decrypt
-     call AES.aes_dec(&context,buffer_crypt,buffer_decrypt);
-     dbg("aes","Decrypted string is : %s\n",buffer_decrypt);
+     memset(key,0,16);
+     memset(input,0,16);
+     memset(output,0,16);
+     
+    /* the expanded keySize */
+    expandedKeySize = 176;
+
+
+
+    /* the cipher key */
+    //key = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
+    /* test string */
+    //input = {0x50,0x68,0x12,0xA4,0x5F,0x08,0xC8,0x89,0xB9,0x7F,0x59,0x80,0x03,0x8B,0x83,0x59};
+    //output = {0};
+
+    key[0]=0x00;
+    key[1]=0x01;
+    key[2]=0x02;
+    key[3]=0x03;
+    key[4]=0x05;
+    key[5]=0x06;
+    key[6]=0x07;
+    key[7]=0x08;
+    key[8]=0x0A;
+    key[9]=0x0B;
+    key[10]=0x0C;
+    key[11]=0x0D;
+    key[12]=0x0F;
+    key[13]=0x10;
+    key[14]=0x11;
+    key[15]=0x12;
+
+    input[0]=0x50;
+    input[1]=0x68;
+    input[2]=0x12;
+    input[3]=0xA4;
+    input[4]=0x5F;
+    input[5]=0x08;
+    input[6]=0xC8;
+    input[7]=0x89;
+    input[8]=0xB9;
+    input[9]=0x7F;
+    input[10]=0x59;
+    input[11]=0x80;
+    input[12]=0x03;
+    input[13]=0x8B;
+    input[14]=0x83;
+    input[15]=0x59;
+
+    /* the cipher key size */
+    size = 16;
+
+    call AES.expandKey(expandedKey, key, size, expandedKeySize);
+
+    printf("Expanded Key:\n");
+    for (i = 0; i < expandedKeySize; i++)
+    {
+            printf("%02x ", expandedKey[i]);
+    }
+    printf("\n");
+
+    printf("Clean Data:\n");
+    for (i = 0; i < 16; i++)
+    {
+            printf("%02x ", input[i]);
+    }
+    printf("\n");
+
+    call AES.aes_encrypt(input, output, key, size);
+
+    printf("Crypted Data:\n");
+    for (i = 0; i < 16; i++)
+    {
+            printf("%02x ", output[i]);
+    }
+    printf("\n");
+    memset(input,0,16);
+    call AES.aes_decrypt(output, input, key, size);
+    printf("Decrypted Data:\n");
+    for (i = 0; i < 16; i++)
+    {
+            printf("%02x ", input[i]);
+    }
+    printf("\n");
+
      //TEST AND DEBUG
      ////////////////////////
      dbg("aes","AES test done.\n");
