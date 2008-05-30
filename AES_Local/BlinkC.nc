@@ -119,30 +119,30 @@ implementation
 
     call AES.expandKey(expandedKey, key, size, expandedKeySize);
 
-    printf("Expanded Key:\n");
+    dbg("aes","Expanded Key:\n");
     for (i = 0; i < expandedKeySize; i++)
     {
-            printf("%02x ", expandedKey[i]);
+            dbg("aes","%02x ", expandedKey[i]);
     }
-    printf("\n");
+    dbg("aes","\n");
 	
     
     call AES.aes_encrypt(input, output, key, size);
 
-    printf("Crypted Data:\n");
+    dbg("aes","Crypted Data:\n");
     for (i = 0; i < 16; i++)
     {
-            printf("%02x ", output[i]);
+            dbg("aes","%02x ", output[i]);
     }
-    printf("\n");
+    dbg("aes","\n");
     memset(input,0,16);
     call AES.aes_decrypt(output, input, key, size);
-    printf("Decrypted Data:\n");
+    dbg("aes","Decrypted Data:\n");
     for (i = 0; i < 16; i++)
     {
-            printf("%02x ", input[i]);
+            dbg("aes","%02x ", input[i]);
     }
-    printf("\n");
+    dbg("aes","\n");
 
      //TEST AND DEBUG
      ////////////////////////
