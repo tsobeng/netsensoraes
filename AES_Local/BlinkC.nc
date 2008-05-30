@@ -53,6 +53,9 @@ implementation
   int size;
   unsigned char key[16] = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
   unsigned char expandedKey[176];
+  unsigned char IV[16];
+  int IV_i;
+  int IV_size;
 
   event void Boot.booted()
   {
@@ -123,6 +126,28 @@ implementation
     }
     printf("\n");
 
+    /* use IV_i to change key */
+    memset(IV,0,16);
+    IV_i=24591;
+    IV_size = sprintf(IV, "%x", IV_i);
+    /* add to key */
+    for(i=0; i< IV_size; i++) {
+	key[i]=key[i]+IV[i];
+    }
+    printf("IV string:%s\n",IV);
+
+    /* the cipher key size */
+    size = 16;
+
+    call AES.expandKey(expandedKey, key, size, expandedKeySize);
+
+    printf("Expanded Key:\n");
+    for (i = 0; i < expandedKeySize; i++)
+    {
+            printf("%02x ", expandedKey[i]);
+    }
+    printf("\n");
+   
     printf("Clean Data:\n");
     for (i = 0; i < 16; i++)
     {
