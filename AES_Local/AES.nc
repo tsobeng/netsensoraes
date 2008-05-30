@@ -2,8 +2,7 @@ includes aes;
 
 interface AES {
 
-
-  command void print_buffer(unsigned char output[16]);
+
 
   command unsigned char getSBoxValue(unsigned char num);
   command unsigned char getSBoxInvert(unsigned char num);

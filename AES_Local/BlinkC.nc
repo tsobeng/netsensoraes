@@ -125,36 +125,8 @@ implementation
             printf("%02x ", expandedKey[i]);
     }
     printf("\n");
-
-    /* use IV_i to change key */
-    memset(IV,0,16);
-    IV_i=24591;
-    IV_size = sprintf(IV, "%x", IV_i);
-    /* add to key */
-    for(i=0; i< IV_size; i++) {
-	key[i]=key[i]+IV[i];
-    }
-    printf("IV string:%s\n",IV);
-
-    /* the cipher key size */
-    size = 16;
-
-    call AES.expandKey(expandedKey, key, size, expandedKeySize);
-
-    printf("Expanded Key:\n");
-    for (i = 0; i < expandedKeySize; i++)
-    {
-            printf("%02x ", expandedKey[i]);
-    }
-    printf("\n");
-   
-    printf("Clean Data:\n");
-    for (i = 0; i < 16; i++)
-    {
-            printf("%02x ", input[i]);
-    }
-    printf("\n");
-
+	
+    
     call AES.aes_encrypt(input, output, key, size);
 
     printf("Crypted Data:\n");
