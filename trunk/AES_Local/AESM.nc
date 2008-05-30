@@ -557,15 +557,4 @@ implementation {
 	      return 0;
 	  }
 
-
-
-      
-	 command void AES.print_buffer(unsigned char output[16]) {
-		for(i=0;i<16;i++)
-		  {
-		      printf("%02x ",output[i]);
-		  }
-		printf("\n\n");
-	}
-
 }
