@@ -1,73 +1,34 @@
-// $Id: RadioCountToLedsC.nc,v 1.5 2007/09/13 23:10:20 scipio Exp $
+#include <Timer.h>
+#include "SecureComunication.h"
+#include "aes.h"
 
-/*									tab:4
- * "Copyright (c) 2000-2005 The Regents of the University  of California.  
- * All rights reserved.
- *
- * Permission to use, copy, modify, and distribute this software and its
- * documentation for any purpose, without fee, and without written agreement is
- * hereby granted, provided that the above copyright notice, the following
- * two paragraphs and the author appear in all copies of this software.
- * 
- * IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE TO ANY PARTY FOR
- * DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING OUT
- * OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF THE UNIVERSITY OF
- * CALIFORNIA HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * 
- * THE UNIVERSITY OF CALIFORNIA SPECIFICALLY DISCLAIMS ANY WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
- * AND FITNESS FOR A PARTICULAR PURPOSE.  THE SOFTWARE PROVIDED HEREUNDER IS
- * ON AN "AS IS" BASIS, AND THE UNIVERSITY OF CALIFORNIA HAS NO OBLIGATION TO
- * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS."
- *
- * Copyright (c) 2002-2003 Intel Corporation
- * All rights reserved.
- *
- * This file is distributed under the terms in the attached INTEL-LICENSE     
- * file. If you do not find these files, copies can be found by writing to
- * Intel Research Berkeley, 2150 Shattuck Avenue, Suite 1300, Berkeley, CA, 
- * 94704.  Attention:  Intel License Inquiry.
- */
- 
-#include "Timer.h"
-#include "RadioCountToLeds.h"
- 
-/**
- * Implementation of the RadioCountToLeds application. RadioCountToLeds 
- * maintains a 4Hz counter, broadcasting its value in an AM packet 
- * every time it gets updated. A RadioCountToLeds node that hears a counter 
- * displays the bottom three bits on its LEDs. This application is a useful 
- * test to show that basic AM communication and timers work.
- *
- * @author Philip Levis
- * @date   June 6 2005
- */
-
-module RadioCountToLedsC {
-  uses {
-    interface Leds;
-    interface Boot;
-    interface Receive;
-    interface AMSend;
-    interface Timer<TMilli> as MilliTimer;
-    interface SplitControl as AMControl;
-    interface Packet;
-  }
+module SecureComunicationC {
+    uses interface Boot;
+    uses interface Leds;
+    uses interface Timer<TMilli> as Timer0;
+    uses interface Packet;
+    uses interface AMPacket;
+    uses interface AMSend;
+    uses interface Receive;
+    uses interface SplitControl as AMControl;
+    uses interface AES;
 }
 implementation {
 
   message_t packet;
+  uint8_t k0,k1;
 
   bool locked;
   uint16_t counter = 0;
   
   event void Boot.booted() {
     call AMControl.start();
+    dbg("sys","Boot of the Application\n");
   }
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) {
-      call MilliTimer.startPeriodic(250);
+      call Timer0.startPeriodic(250);
     }
     else {
       call AMControl.start();
@@ -78,22 +39,30 @@ implementation {
     // do nothing
   }
   
-  event void MilliTimer.fired() {
+  event void Timer0.fired() {
     counter++;
-    dbg("RadioCountToLedsC", "RadioCountToLedsC: timer fired, counter is %hu.\n", counter);
+    dbg("sys", "SecureComunicationC: timer fired, counter is %hu.\n", counter);
     if (locked) {
-	dbg("RadioCountToLedsC","locket set to true, skip step\n");
+	dbg("sys","locket set to true, skip step\n");
       return;
     }
     else {
-      radio_count_msg_t* rcm = (radio_count_msg_t*)call Packet.getPayload(&packet, sizeof(radio_count_msg_t));
+      SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)call Packet.getPayload(&packet, sizeof(SecureComunicationAesMsg));
       if (rcm == NULL) {
 	return;
       }
-
+      //----------------------------------------
+      //Section of packet encripting and setting
+	
+	  rcm->nodeid = TOS_NODE_ID;
       rcm->counter = counter;
-      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_count_msg_t)) == SUCCESS) {
-	dbg("RadioCountToLedsC", "RadioCountToLedsC: packet sent.\n", counter);	
+      for(k0=0;k0<10;k0++){
+		  rcm->data[k0]=k0*6; 
+	  }
+      
+      //----------------------------------------
+      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(SecureComunicationAesMsg)) == SUCCESS) {
+		dbg("com", "SecureComunicationC: packet sent.\n", counter);	
 	locked = TRUE;
       }
     }
@@ -101,28 +70,19 @@ implementation {
 
   event message_t* Receive.receive(message_t* bufPtr, 
 				   void* payload, uint8_t len) {
-    dbg("RadioCountToLedsC", "Received packet of length %hhu.\n", len);
-    if (len != sizeof(radio_count_msg_t)) {return bufPtr;}
+    dbg("com", "Received packet of length %hhu.\n", len);
+    if (len != sizeof(SecureComunicationAesMsg)) {return bufPtr;}
     else {
-      radio_count_msg_t* rcm = (radio_count_msg_t*)payload;
-      if (rcm->counter & 0x1) {
-	call Leds.led0On();
-      }
-      else {
-	call Leds.led0Off();
-      }
-      if (rcm->counter & 0x2) {
-	call Leds.led1On();
-      }
-      else {
-	call Leds.led1Off();
-      }
-      if (rcm->counter & 0x4) {
-	call Leds.led2On();
-      }
-      else {
-	call Leds.led2Off();
-      }
+      SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)payload;
+
+      dbg("com"," Receive %d \n", rcm->counter);
+      //----------------------------------------
+      //Section of packet dencripting and Extractions
+      for(k1=0;k1<10;k1++)
+      	dbg("aes", "Rec Value %d\n", rcm->data[k1]);
+
+      
+      //----------------------------------------
       return bufPtr;
     }
   }
@@ -130,6 +90,7 @@ implementation {
   event void AMSend.sendDone(message_t* bufPtr, error_t error) {
     if (&packet == bufPtr) {
       locked = FALSE;
+      dbg("com", "Packet sent done\n");
     }
   }
 
