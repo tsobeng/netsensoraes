@@ -17,6 +17,20 @@ implementation {
 
   message_t packet;
   uint8_t k0,k1;
+  
+  //Variable for the cryptography part
+  //should use 1 buffer for saving memory
+  unsigned char input[16]= {0x50,0x68,0x12,0xA4,0x5F,0x08,0xC8,0x89,0xB9,0x7F,0x59,0x80,0x03,0x8B,0x83,0x59};
+  unsigned char output[16];
+  int expandedKeySize,i;
+  int size;
+  unsigned char key[16] = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
+  unsigned char key_fake[16] = {0x02,0x02,0x02,0x03,0x04,0x06,0x07,0x08,0x0A,0x1B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
+  unsigned char expandedKey[176];
+  unsigned char IV[16];
+  int IV_i;
+  int IV_size;
+  
 
   bool locked;
   uint16_t counter = 0;
@@ -56,10 +70,49 @@ implementation {
 	
 	  rcm->nodeid = TOS_NODE_ID;
       rcm->counter = counter;
-      for(k0=0;k0<10;k0++){
-		  rcm->data[k0]=k0*6; 
-	  }
       
+      //Stert the criptograpy part
+       memset(input,0,16);
+	   memset(output,0,16);
+	   expandedKeySize = 176;
+		input[0]=0x50;
+	    input[1]=0x68;
+    	input[2]=0x12;
+	    input[3]=0xA4;
+    	input[4]=0x5F;
+	    input[5]=0x08;
+    	input[6]=0xC8;
+	    input[7]=0x89;
+    	input[8]=0xB9;
+	    input[9]=0x7F;
+    	input[10]=0x59;
+	    input[11]=0x80;
+    	input[12]=0x03;
+	    input[13]=0x8B;
+    	input[14]=0x83;
+   		input[15]=0x59;
+   		/* the cipher key size */
+   		 size = 16;
+
+	    call AES.expandKey(expandedKey, key, size, expandedKeySize);
+	    dbg("aes","Expanded Key:\n");
+   		
+        call AES.aes_encrypt(input, output, key, size);
+   		dbg("aes","Crypted Data:\n");
+   		
+	  for(k0=0;k0<16;k0++){
+		  rcm->data[k0]=output[k0]; 
+	  }
+	  
+	  for(k0=0;k0<16;k0++){
+      	printf("%d ",rcm->data[k0]);
+      	
+      }
+      dbg("aes"," \nOriginal");
+      for(k0=0;k0<16;k0++){
+      	printf(" %d ",input[k0]);
+      	
+      }
       //----------------------------------------
       if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(SecureComunicationAesMsg)) == SUCCESS) {
 		dbg("com", "SecureComunicationC: packet sent.\n", counter);	
@@ -78,9 +131,28 @@ implementation {
       dbg("com"," Receive %d \n", rcm->counter);
       //----------------------------------------
       //Section of packet dencripting and Extractions
-      for(k1=0;k1<10;k1++)
-      	dbg("aes", "Rec Value %d\n", rcm->data[k1]);
-
+      memset(input,0,16);
+      memset(output,0,16);
+      
+      for(k0=0;k0<16;k0++){
+		  input[k0] = rcm->data[k0]; 
+	  }
+	  dbg("aes"," \nFrom net: ");
+      for(k0=0;k0<16;k0++){
+      	printf(" %d ",input[k0]);
+      	
+      }
+	   //call AES.expandKey(expandedKey, key, size, expandedKeySize);
+	    dbg("aes","Expanded Key:\n");
+	  
+   	  call AES.aes_decrypt(input, output, key, size);
+      dbg("aes","Decrypted Data:\n");
+      
+      for(k0=0;k0<16;k0++){
+      	printf(" %d ",output[k0]);
+      }
+      
+      dbg("aes","\n");
       
       //----------------------------------------
       return bufPtr;
