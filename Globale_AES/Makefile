@@ -1,3 +1,3 @@
-COMPONENT=RadioCountToLedsAppC
+COMPONENT=SecureComunicationAppC
 include $(MAKERULES)
 
