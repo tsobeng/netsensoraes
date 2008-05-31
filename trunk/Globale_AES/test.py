@@ -17,7 +17,7 @@ for line in lines:
 t.addChannel("aes", f_aes)
 t.addChannel("com", sys.stdout)
 t.addChannel("boot", sys.stdout)
-t.addChannel("RadioCountToLedsC", sys.stdout)
+t.addChannel("RadioCountToLedsC", sys.sterr)
 
 noise = open("../meyer-heavy.txt", "r")
 lines = noise.readlines()
