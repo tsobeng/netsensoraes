@@ -143,8 +143,8 @@ implementation {
 		  printf("%3d ",rcm->data[k0]);
 	  }
 	  printf("\n");
-	  input[13]=0x5B;
-      input[15]=0xc9;
+	  //input[13]=0x5B;
+      //input[15]=0xc9;
 	  dbg("aes","From net:       ");
       for(k0=0;k0<16;k0++){
       	printf("%3d ",input[k0]);	

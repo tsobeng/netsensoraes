@@ -4,7 +4,8 @@
 typedef nx_struct SecureComunicationAesMsg{
   nx_uint16_t nodeid;
   nx_uint16_t counter;
-  nx_uint16_t data[10]; 
+  nx_uint8_t data[16];
+  //nx_uint8_t data1[8];
 } SecureComunicationAesMsg;
 
 
