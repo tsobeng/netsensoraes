@@ -69,7 +69,7 @@ implementation {
       //Section of packet encripting and setting
 	
 	  rcm->nodeid = TOS_NODE_ID;
-      rcm->counter = counter;
+      rcm->IV = counter;
       
       //Stert the criptograpy part
        memset(input,0,16);
@@ -129,22 +129,16 @@ implementation {
     else {
       SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)payload;
 
-      dbg("com","Receive %d \n", rcm->counter);
+      dbg("com","Receive %d \n", rcm->IV);
       //----------------------------------------
       //Section of packet dencripting and Extractions
       memset(input,0,16);
       memset(output,0,16);
       
-      printf("%d - %d  \n",rcm->data[13],rcm->data[15]); //DEBUG
-      
-      dbg("aes","From net packet:       ");
       for(k0=0;k0<16;k0++){
-		  input[k0] = rcm->data[k0]; 
-		  printf("%3d ",rcm->data[k0]);
+		input[k0]=rcm->data[k0];
 	  }
-	  printf("\n");
-	  //input[13]=0x5B;
-      //input[15]=0xc9;
+      
 	  dbg("aes","From net:       ");
       for(k0=0;k0<16;k0++){
       	printf("%3d ",input[k0]);	
