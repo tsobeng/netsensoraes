@@ -95,24 +95,25 @@ implementation {
    		 size = 16;
 
 	    call AES.expandKey(expandedKey, key, size, expandedKeySize);
-	    dbg("aes","Expanded Key:\n");
    		
         call AES.aes_encrypt(input, output, key, size);
-   		dbg("aes","Crypted Data:\n");
    		
 	  for(k0=0;k0<16;k0++){
 		  rcm->data[k0]=output[k0]; 
 	  }
 	  
+	  dbg("aes","Crypted Data:   ");
 	  for(k0=0;k0<16;k0++){
-      	printf("%d ",rcm->data[k0]);
-      	
+      	printf("%3d ",rcm->data[k0]);
       }
-      dbg("aes"," \nOriginal");
+      printf("\n");
+      
+      dbg("aes","Original:       ");
       for(k0=0;k0<16;k0++){
-      	printf(" %d ",input[k0]);
-      	
+      	printf("%3d ",input[k0]);	
       }
+      printf("\n");
+      
       //----------------------------------------
       if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(SecureComunicationAesMsg)) == SUCCESS) {
 		dbg("com", "SecureComunicationC: packet sent.\n", counter);	
@@ -128,31 +129,36 @@ implementation {
     else {
       SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)payload;
 
-      dbg("com"," Receive %d \n", rcm->counter);
+      dbg("com","Receive %d \n", rcm->counter);
       //----------------------------------------
       //Section of packet dencripting and Extractions
       memset(input,0,16);
       memset(output,0,16);
       
+      printf("%d - %d  \n",rcm->data[13],rcm->data[15]); //DEBUG
+      
+      dbg("aes","From net packet:       ");
       for(k0=0;k0<16;k0++){
 		  input[k0] = rcm->data[k0]; 
+		  printf("%3d ",rcm->data[k0]);
 	  }
-	  dbg("aes"," \nFrom net: ");
+	  printf("\n");
+	  input[13]=0x5B;
+      input[15]=0xc9;
+	  dbg("aes","From net:       ");
       for(k0=0;k0<16;k0++){
-      	printf(" %d ",input[k0]);
-      	
+      	printf("%3d ",input[k0]);	
       }
-	   //call AES.expandKey(expandedKey, key, size, expandedKeySize);
-	    dbg("aes","Expanded Key:\n");
-	  
+      printf("\n");
+      
    	  call AES.aes_decrypt(input, output, key, size);
-      dbg("aes","Decrypted Data:\n");
+      dbg("aes","Decrypted Data: ");
       
       for(k0=0;k0<16;k0++){
-      	printf(" %d ",output[k0]);
+      	printf("%3d ",output[k0]);
       }
+      printf("\n");
       
-      dbg("aes","\n");
       
       //----------------------------------------
       return bufPtr;
