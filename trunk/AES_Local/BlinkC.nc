@@ -125,8 +125,36 @@ implementation
             dbg("aes","%02x ", expandedKey[i]);
     }
     dbg("aes","\n");
-	
-    
+
+    /* use IV_i to change key */
+    memset(IV,0,16);
+    IV_i=24591;
+    IV_size = sprintf(IV, "%x", IV_i);
+    /* add to key */
+    for(i=0; i< IV_size; i++) {
+	key[i]=key[i]+IV[i];
+    }
+    dbg("aes","IV string:%s\n",IV);
+
+    /* the cipher key size */
+    size = 16;
+
+    call AES.expandKey(expandedKey, key, size, expandedKeySize);
+
+    dbg("aes","Expanded Key:\n");
+    for (i = 0; i < expandedKeySize; i++)
+    {
+            dbg("aes","%02x ", expandedKey[i]);
+    }
+    dbg("aes","\n");
+   
+    dbg("aes","Clean Data:\n");
+    for (i = 0; i < 16; i++)
+    {
+            dbg("aes","%02x ", input[i]);
+    }
+    dbg("aes","\n");
+
     call AES.aes_encrypt(input, output, key, size);
 
     dbg("aes","Crypted Data:\n");
