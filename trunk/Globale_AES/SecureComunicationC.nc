@@ -30,6 +30,8 @@ implementation {
   unsigned char IV[16];
   int IV_i;
   int IV_size;
+  uint16_t crc;
+  
   
 
   bool locked;
@@ -91,6 +93,15 @@ implementation {
 	    input[13]=0x8B;
     	input[14]=0x83;
    		input[15]=0x59;
+   		
+   		//Compute a sort of check sum
+   		crc=0;
+   		for(k0=0;k0<16;k0++){
+   			crc = crc+input[k0];
+   		}
+   		rcm->crc = crc; //Set the check sum of the packet
+   		//dbg("aes","Checksum... (%d - %d)\n",crc,rcm->crc);	
+   		
    		/* the cipher key size */
    		 size = 16;
 
@@ -104,7 +115,7 @@ implementation {
 	  
 	  dbg("aes","Crypted Data:   ");
 	  for(k0=0;k0<16;k0++){
-      	//printf("%3d ",rcm->data[k0]);
+      	printf("%3d ",rcm->data[k0]);
       }
       printf("\n");
       
@@ -151,6 +162,23 @@ implementation {
       for(k0=0;k0<16;k0++){
       	printf("%3d ",output[k0]);
       }
+      printf("\n");
+      //Compute the check sum of the decrypted data
+      crc=0;
+      for(k0=0;k0<16;k0++){
+   			crc = crc+output[k0];
+   	  }
+   	  if(crc==rcm->crc){
+	    dbg("aes","Correct decription");	
+   	  	call Leds.led2On();
+   	  	call Leds.led0Off();   	  	
+   	  }else{
+   	  	dbg("aes","Error in the decription (%d - %d)\n",crc,rcm->crc);	
+   	  	call Leds.led0On();
+   	  	call Leds.led2Off();
+   	  }
+   	  	
+      
       printf("\n");
       
       
