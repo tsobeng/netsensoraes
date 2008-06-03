@@ -6,8 +6,12 @@ typedef nx_struct SecureComunicationAesMsg{
   nx_uint16_t IV;
   nx_uint8_t data[16];
   nx_uint16_t crc;
-  //nx_uint8_t data1[8];
 } SecureComunicationAesMsg;
+
+typedef nx_struct SecureComunicationAesKeyMsg{
+  nx_uint8_t key[16];
+} SecureComunicationAesKeyMsg;
+
 
 
 enum {
