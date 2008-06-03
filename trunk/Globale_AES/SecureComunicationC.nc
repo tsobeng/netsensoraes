@@ -75,9 +75,9 @@ implementation {
        memset(input,0,16);
 	   memset(output,0,16);
 	   expandedKeySize = 176;
-		input[0]=0x50;
-	    input[1]=0x68;
-    	input[2]=0x12;
+		input[0]=3;
+	    input[1]=2;
+    	input[2]=3;
 	    input[3]=0xA4;
     	input[4]=0x5F;
 	    input[5]=0x08;
@@ -104,7 +104,7 @@ implementation {
 	  
 	  dbg("aes","Crypted Data:   ");
 	  for(k0=0;k0<16;k0++){
-      	printf("%3d ",rcm->data[k0]);
+      	//printf("%3d ",rcm->data[k0]);
       }
       printf("\n");
       
