@@ -17,6 +17,7 @@ implementation {
 
   message_t packet;
   uint8_t k0,k1;
+  uint8_t comunication=0;
   
   //Variable for the cryptography part
   //should use 1 buffer for saving memory
@@ -24,16 +25,13 @@ implementation {
   unsigned char output[16];
   int expandedKeySize,i;
   int size;
-  unsigned char key[16] = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
+  unsigned char key[16]; // = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
   unsigned char key_fake[16] = {0x02,0x02,0x02,0x03,0x04,0x06,0x07,0x08,0x0A,0x1B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
   unsigned char expandedKey[176];
   unsigned char IV[16];
   int IV_i;
   int IV_size;
   uint16_t crc;
-  
-  
-
   bool locked;
   uint16_t counter = 0;
   
@@ -44,6 +42,7 @@ implementation {
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) {
+	  memset(key,0,16);
       call Timer0.startPeriodic(250);
     }
     else {
@@ -56,6 +55,10 @@ implementation {
   }
   
   event void Timer0.fired() {
+  	if(comunication==0){ //If the key is not set return and tried the next time
+  		dbg("aes","Key not set yet\n");
+  		return;
+  	}
     counter++;
     dbg("sys", "SecureComunicationC: timer fired, counter is %hu.\n", counter);
     if (locked) {
@@ -111,7 +114,7 @@ implementation {
    		
 	  for(k0=0;k0<16;k0++){
 		  rcm->data[k0]=output[k0]; 
-	  }
+	   }
 	  
 	  dbg("aes","Crypted Data:   ");
 	  for(k0=0;k0<16;k0++){
@@ -136,6 +139,18 @@ implementation {
   event message_t* Receive.receive(message_t* bufPtr, 
 				   void* payload, uint8_t len) {
     dbg("com", "Received packet of length %hhu.\n", len);
+    
+    //Setting the key for the comunication
+    if(len == sizeof(SecureComunicationAesKeyMsg)){
+    	SecureComunicationAesKeyMsg* keymex = (SecureComunicationAesKeyMsg*)payload;
+    	dbg("aes","Key set\n");
+    	for(k0=0;k0<16;k0++){
+			key[k0]=keymex->key[k0];
+	    }
+    	comunication=1;
+    	return bufPtr;
+    }
+    
     if (len != sizeof(SecureComunicationAesMsg)) {return bufPtr;}
     else {
       SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)payload;
