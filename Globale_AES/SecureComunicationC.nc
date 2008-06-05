@@ -37,13 +37,14 @@ implementation {
   
   event void Boot.booted() {
     call AMControl.start();
-    dbg("sys","Boot of the Application\n");
+    dbg("sys","Boot of the Application %d \n",TOS_NODE_ID);
   }
 
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) {
 	  memset(key,0,16);
 	  dbg("sys","Wating for the key\n");
+	  call Timer0.startPeriodic(250);
     }
     else {
       call AMControl.start();
@@ -141,20 +142,22 @@ implementation {
     dbg("com", "Received packet of length %hhu.\n", len);
     
     //Setting the key for the comunication
-    if(len == sizeof(SecureComunicationAesKeyMsg)){
-    	SecureComunicationAesKeyMsg* keymex = (SecureComunicationAesKeyMsg*)payload;
-    	dbg("aes","Key set\n");
-    	for(k0=0;k0<16;k0++){
-			key[k0]=keymex->key[k0];
-	    }
-    	comunication=1;
-    	call Timer0.startPeriodic(250);
-    	return bufPtr;
-    }
+    
     
     if (len != sizeof(SecureComunicationAesMsg)) {return bufPtr;}
     else {
       SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)payload;
+      
+      if(rcm->crc == 0){
+    	dbg("aes","Key set\n");
+    	for(k0=0;k0<16;k0++){
+			key[k0]=rcm->data[k0];
+	    }
+	    comunication=1;
+    	return bufPtr;
+      }
+      
+      
 
       dbg("com","Receive %d \n", rcm->IV);
       //----------------------------------------

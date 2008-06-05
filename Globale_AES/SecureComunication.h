@@ -9,8 +9,9 @@ typedef nx_struct SecureComunicationAesMsg{
 } SecureComunicationAesMsg;
 
 typedef nx_struct SecureComunicationAesKeyMsg{
-  nx_uint8_t key[16];
-} SecureComunicationAesKeyMsg;
+ //nx_uint8_t key[16];
+  nx_uint8_t version;
+} SecureComunicationAesKeyMsg_t;
 
 
 
