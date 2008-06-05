@@ -41,14 +41,16 @@ for i in range(0, 3):
 for i in range(0, 10):
   t.runNextEvent();
 
+key = [0xb0,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12];
 msg = RadioCountMsg()
-msg.set_counter(7);
+msg.set_crc(70);
+msg.set_data(key);
 pkt = t.newPacket();
 pkt.setData(msg.data)
 pkt.setType(msg.get_amType())
 pkt.setDestination(0)
 pkt.deliver(0, t.time())
-msg.set_counter(4);
+msg.set_crc(40);
 pkt = t.newPacket();
 pkt.setData(msg.data)
 pkt.setType(msg.get_amType())
@@ -56,5 +58,5 @@ pkt.setDestination(1)
 pkt.deliver(1, t.time())
 
 
-for i in range(0, 100):
+for i in range(0, 500):
   t.runNextEvent()
