@@ -36,7 +36,7 @@ t.getNode(1).bootAtTime(100001);
 t.getNode(2).bootAtTime(800008);
 t.getNode(3).bootAtTime(1800009);
 
-for i in range(0, 10):
+for i in range(0, 100):
   t.runNextEvent()
 
 #Send the rigth key
@@ -46,8 +46,8 @@ msg.set_key(key);
 pkt = t.newPacket();
 pkt.setData(msg.data)
 pkt.setType(msg.get_amType())
-pkt.deliver(1, t.time() + 3)
-pkt.deliver(2, t.time() + 3)
+pkt.deliver(1, t.time())
+pkt.deliver(2, t.time())
 
 #Send a fake key
 fake_key = [0x01,0x00,0x04,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12];

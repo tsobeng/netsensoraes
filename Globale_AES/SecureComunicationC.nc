@@ -43,7 +43,7 @@ implementation {
   event void AMControl.startDone(error_t err) {
     if (err == SUCCESS) {
 	  memset(key,0,16);
-      call Timer0.startPeriodic(250);
+	  dbg("sys","Wating for the key\n");
     }
     else {
       call AMControl.start();
@@ -148,6 +148,7 @@ implementation {
 			key[k0]=keymex->key[k0];
 	    }
     	comunication=1;
+    	call Timer0.startPeriodic(250);
     	return bufPtr;
     }
     
