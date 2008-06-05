@@ -8,13 +8,6 @@ typedef nx_struct SecureComunicationAesMsg{
   nx_uint16_t crc;
 } SecureComunicationAesMsg;
 
-typedef nx_struct SecureComunicationAesKeyMsg{
- //nx_uint8_t key[16];
-  nx_uint8_t version;
-} SecureComunicationAesKeyMsg_t;
-
-
-
 enum {
   AM_BLINKTORADIO = 6,
   AM_SECURERADIO = 11,
