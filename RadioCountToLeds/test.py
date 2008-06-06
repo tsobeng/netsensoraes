@@ -1,6 +1,6 @@
 #! /usr/bin/python
 from TOSSIM import *
-from RadioCountMsg import *
+from SecureKeyMsg import *
 import sys
 
 t = Tossim([])
@@ -15,7 +15,7 @@ for i in range(0, 3):
   m.bootAtTime(12312221);  #(31 + t.ticksPerSecond() / 10) * i + 1);
 
 
-f = open("topo.txt", "r")
+f = open("../topo.txt", "r")
 lines = f.readlines()
 for line in lines:
   s = line.split()
@@ -24,7 +24,7 @@ for line in lines:
     r.add(int(s[0]), int(s[1]), float(s[2]))
 
 
-noise = open("meyer-heavy.txt", "r")
+noise = open("../meyer-heavy.txt", "r")
 lines = noise.readlines()
 for line in lines:
   str = line.strip()
@@ -42,7 +42,7 @@ for i in range(0, 10):
   t.runNextEvent();
 
 key = [0xb0,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12];
-msg = RadioCountMsg()
+msg = SecureKeyMsg()
 msg.set_crc(70);
 msg.set_data(key);
 pkt = t.newPacket();

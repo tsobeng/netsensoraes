@@ -80,7 +80,6 @@ implementation {
   }
   
   event void MilliTimer.fired() {
-    dbg("RadioCountToLedsC", "Time:Ê%s\n", sim_time_string()); 
     counter++;
     dbg("RadioCountToLedsC", "RadioCountToLedsC: timer fired, counter is %hu.\n", counter);
     if (locked) {
@@ -88,13 +87,13 @@ implementation {
       return;
     }
     else {
-      radio_count_msg_t* rcm = (radio_count_msg_t*)call Packet.getPayload(&packet, sizeof(radio_count_msg_t));
+      sec_com_aes_msg_t* rcm = (sec_com_aes_msg_t*)call Packet.getPayload(&packet, sizeof(sec_com_aes_msg_t));
       if (rcm == NULL) {
 	return;
       }
 
       rcm->crc = counter ; // counter;
-      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(radio_count_msg_t)) == SUCCESS) {
+      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(sec_com_aes_msg_t)) == SUCCESS) {
 	dbg("RadioCountToLedsC", "RadioCountToLedsC: packet sent.\n", counter);	
 	locked = TRUE;
       }
@@ -105,29 +104,11 @@ implementation {
 				   void* payload, uint8_t len) {
     dbg("RadioCountToLedsC", "Received packet of length %hhu.\n", len);
     
-    if (len != sizeof(radio_count_msg_t)) {return bufPtr;}
+    if (len != sizeof(sec_com_aes_msg_t)) {return bufPtr;}
     else {
-      radio_count_msg_t* rcm = (radio_count_msg_t*)payload;
+      sec_com_aes_msg_t* rcm = (sec_com_aes_msg_t*)payload;
     	dbg("RadioCountToLedsC", "Value = %d\n", rcm->crc); 
     	dbg("RadioCountToLedsC", "Value2 = %d\n", rcm->data[0]);
-      if (rcm->crc & 0x1) {
-	call Leds.led0On();
-      }
-      else {
-	call Leds.led0Off();
-      }
-      if (rcm->crc & 0x2) {
-	call Leds.led1On();
-      }
-      else {
-	call Leds.led1Off();
-      }
-      if (rcm->crc & 0x4) {
-	call Leds.led2On();
-      }
-      else {
-	call Leds.led2Off();
-      }
       return bufPtr;
     }
   }

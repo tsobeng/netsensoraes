@@ -1,8 +1,8 @@
 COMPONENT=RadioCountToLedsAppC
-BUILD_EXTRA_DEPS = RadioCountMsg.py
+BUILD_EXTRA_DEPS = SecureKeyMsg.py
 
-RadioCountMsg.py: RadioCountToLeds.h
-	mig python -target=$(PLATFORM) $(CFLAGS) -python-classname=RadioCountMsg RadioCountToLeds.h radio_count_msg -o $@
+SecureKeyMsg.py: RadioCountToLeds.h
+	mig python -target=$(PLATFORM) $(CFLAGS) -python-classname=SecureKeyMsg RadioCountToLeds.h securekeymsg_msg -o $@
 
 include $(MAKERULES)
 
