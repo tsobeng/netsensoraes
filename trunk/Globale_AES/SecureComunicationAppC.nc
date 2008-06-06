@@ -9,8 +9,8 @@ implementation {
   components SecureComunicationC as App;
   components new TimerMilliC() as Timer0;
   components ActiveMessageC;
-  components new AMSenderC(AM_SECURERADIO);
-  components new AMReceiverC(AM_SECURERADIO);
+  components new AMSenderC(AM_SECUREKEYMSG_MSG);
+  components new AMReceiverC(AM_SECUREKEYMSG_MSG);
   components AESM;
 
   //we wire here the used interfaces to the providing components
