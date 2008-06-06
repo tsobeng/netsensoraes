@@ -18,13 +18,15 @@ implementation {
   message_t packet;
   uint8_t k0,k1;
   uint8_t comunication=0;
+  uint8_t man_in_the_midle=0;
+  
   
   //Variable for the cryptography part
   //should use 1 buffer for saving memory
   unsigned char input[16]= {0x50,0x68,0x12,0xA4,0x5F,0x08,0xC8,0x89,0xB9,0x7F,0x59,0x80,0x03,0x8B,0x83,0x59};
   unsigned char output[16];
   int expandedKeySize,i;
-  int size;
+  int size = 16;
   unsigned char key[16]; // = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
   unsigned char key_fake[16] = {0x02,0x02,0x02,0x03,0x04,0x06,0x07,0x08,0x0A,0x1B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
   unsigned char expandedKey[176];
@@ -60,6 +62,9 @@ implementation {
   		dbg("aes","Key not set yet\n");
   		return;
   	}
+  	if(man_in_the_midle==1)
+  		return; //If is a man in the middle attack not able to send packet
+    
     counter++;
     dbg("sys", "SecureComunicationC: timer fired, counter is %hu.\n", counter);
     if (locked) {
@@ -157,13 +162,19 @@ implementation {
       	  printf("%3d ",key[k0]);	
         }
         printf("\n");
+        if(rcm->IV==999)
+        	man_in_the_midle = 1;
 	    comunication=1;
     	return bufPtr;
       }
       
+      if(comunication!=1){
+      	dbg("aes","Key not set yet: unable to decrypt the data\n");
+      	return bufPtr;
+      }
       
 
-      dbg("com","Receive %d \n", rcm->IV);
+      dbg("com","Receive %d \n", rcm->nodeid);
       //----------------------------------------
       //Section of packet dencripting and Extractions
       memset(input,0,16);

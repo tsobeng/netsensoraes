@@ -56,6 +56,9 @@ pkt.setData(msg.data)
 pkt.setType(msg.get_amType())
 pkt.setDestination(1)
 pkt.deliver(1, t.time()+1)
+pkt = t.newPacket();
+pkt.setData(msg.data)
+pkt.setType(msg.get_amType())
 pkt.setDestination(2)
 pkt.deliver(2, t.time()+1)
 
@@ -63,7 +66,7 @@ pkt.deliver(2, t.time()+1)
 fake_key = [0xdd,0xa1,0x02,0x04,0x05,0xff,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12];
 msg1 = SecureKeyMsg()
 msg1.set_nodeid(0);
-msg1.set_IV(0);
+msg1.set_IV(999);
 msg1.set_data(fake_key); 
 msg1.set_crc(0);
 pkt1 = t.newPacket();
