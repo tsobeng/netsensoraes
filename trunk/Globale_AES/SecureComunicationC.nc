@@ -20,7 +20,6 @@ implementation {
   uint8_t comunication=0;
   uint8_t man_in_the_midle=0;
   
-  
   //Variable for the cryptography part
   
   unsigned char IVbox[256] =   {
@@ -48,8 +47,7 @@ implementation {
   int expandedKeySize,i;
   int size = 16;
   unsigned char key[16]; // = {0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
-  unsigned char key_fake[16] = {0x02,0x02,0x02,0x03,0x04,0x06,0x07,0x08,0x0A,0x1B,0x0C,0x0D,0x0F,0x10,0x11,0x12};
-  unsigned char expandedKey[176];
+  unsigned char key_tmp[16];
   unsigned char IV[16];
   uint8_t IV_i;
   uint8_t pos;
@@ -59,9 +57,9 @@ implementation {
   uint16_t counter = 0;
   
   /* update key with value from IVbox */
-  void updateKey(unsigned char *key1,uint8_t iv) {
+  void updateKey(unsigned char *key1,unsigned char *key_temp,uint8_t iv) {
     pos=(iv % 16);
-    key1[pos]=key1[pos]+IVbox[pos];
+    key_temp[pos]=key1[pos]+IVbox[pos];
   }
 
   
@@ -113,7 +111,6 @@ implementation {
       //Stert the criptograpy part
        memset(input,0,16);
 	   memset(output,0,16);
-	   expandedKeySize = 176;
 		input[0]=3;
 	    input[1]=2;
     	input[2]=3;
@@ -140,17 +137,14 @@ implementation {
    		//dbg("aes","Checksum... (%d - %d)\n",crc,rcm->crc);	
    		
    		/* the cipher key size */
-   		 size = 16;
+   		size = 16;
    		 
-   		 /* use IV_i to change key */
+   		/* use IV_i to change key */
 	    IV_i=counter;
     	printf("IV string:%i\n",IV_i);
-    	updateKey(key,IV_i);
-
-
-	    call AES.expandKey(expandedKey, key, size, expandedKeySize);
-   		
-        call AES.aes_encrypt(input, output, key, size);
+    	updateKey(key,key_tmp,IV_i);
+    	
+        call AES.aes_encrypt(input, output, key_tmp, size);
    		
 	  for(k0=0;k0<16;k0++){
 		  rcm->data[k0]=output[k0]; 
@@ -226,9 +220,9 @@ implementation {
       
       IV_i=rcm->IV;
       printf("IV string:%i\n",IV_i);
-      updateKey(key,IV_i);
+      updateKey(key,key_tmp,IV_i);
       
-   	  call AES.aes_decrypt(input, output, key, size);
+   	  call AES.aes_decrypt(input, output, key_tmp, size);
       dbg("aes","Decrypted Data: ");
       
       for(k0=0;k0<16;k0++){
