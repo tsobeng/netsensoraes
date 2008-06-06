@@ -67,7 +67,7 @@ implementation {
       return;
     }
     else {
-      SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)call Packet.getPayload(&packet, sizeof(SecureComunicationAesMsg));
+      sec_com_aes_msg_t* rcm = (sec_com_aes_msg_t*)call Packet.getPayload(&packet, sizeof(sec_com_aes_msg_t));
       if (rcm == NULL) {
 	return;
       }
@@ -130,7 +130,7 @@ implementation {
       printf("\n");
       
       //----------------------------------------
-      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(SecureComunicationAesMsg)) == SUCCESS) {
+      if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(sec_com_aes_msg_t)) == SUCCESS) {
 		dbg("com", "SecureComunicationC: packet sent.\n", counter);	
 	locked = TRUE;
       }
@@ -144,15 +144,19 @@ implementation {
     //Setting the key for the comunication
     
     
-    if (len != sizeof(SecureComunicationAesMsg)) {return bufPtr;}
+    if (len != sizeof(sec_com_aes_msg_t)) {return bufPtr;}
     else {
-      SecureComunicationAesMsg* rcm = (SecureComunicationAesMsg*)payload;
+      sec_com_aes_msg_t* rcm = (sec_com_aes_msg_t*)payload;
       
       if(rcm->crc == 0){
-    	dbg("aes","Key set\n");
+    	dbg("aes","Key set: ");
     	for(k0=0;k0<16;k0++){
 			key[k0]=rcm->data[k0];
 	    }
+	    for(k0=0;k0<16;k0++){
+      	  printf("%3d ",key[k0]);	
+        }
+        printf("\n");
 	    comunication=1;
     	return bufPtr;
       }
