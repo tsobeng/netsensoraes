@@ -30,15 +30,15 @@
 #ifndef RADIO_COUNT_TO_LEDS_H
 #define RADIO_COUNT_TO_LEDS_H
 
-typedef nx_struct radio_count_msg {
+typedef nx_struct securekeymsg_msg {
    nx_uint16_t nodeid;
-  nx_uint16_t IV;
-  nx_uint8_t data[16];
-  nx_uint16_t crc;
-} radio_count_msg_t;
+   nx_uint16_t IV;
+   nx_uint8_t data[16];
+   nx_uint16_t crc;
+} sec_com_aes_msg_t;
 
 enum {
-  AM_RADIO_COUNT_MSG = 6,
+  AM_SECUREKEYMSG_MSG = 6
 };
 
 #endif
