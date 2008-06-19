@@ -102,15 +102,17 @@ implementation {
       if (rcm == NULL) {
 	return;
       }
+      
       //----------------------------------------
       //Section of packet encripting and setting
-	
 	  rcm->nodeid = TOS_NODE_ID;
       rcm->IV = counter;
       
       //Stert the criptograpy part
        memset(input,0,16);
 	   memset(output,0,16);
+	   
+	  //Input data to send to the other nodes
 		input[0]=3;
 	    input[1]=2;
     	input[2]=3;
@@ -128,7 +130,7 @@ implementation {
     	input[14]=0x83;
    		input[15]=0x59;
    		
-   		//Compute a sort of check sum
+   		//Compute the checksum
    		crc=0;
    		for(k0=0;k0<16;k0++){
    			crc = crc+input[k0];
@@ -141,7 +143,6 @@ implementation {
    		 
    		/* use IV_i to change key */
 	    IV_i=counter;
-    	printf("IV string:%i\n",IV_i);
     	updateKey(key,key_tmp,IV_i);
     	
         call AES.aes_encrypt(input, output, key_tmp, size);
@@ -181,7 +182,7 @@ implementation {
     else {
       sec_com_aes_msg_t* rcm = (sec_com_aes_msg_t*)payload;
       
-      if(rcm->crc == 0){
+      if(rcm->crc == 0){ //If the node receive a packet with crc=0 that mean the packet contein the information of the key
     	dbg("aes","Key set: ");
     	for(k0=0;k0<16;k0++){
 			key[k0]=rcm->data[k0];
@@ -190,7 +191,7 @@ implementation {
       	  printf("%3d ",key[k0]);	
         }
         printf("\n");
-        if(rcm->IV==999)
+        if(rcm->IV==999) //If the IV is set to 999, that mean the receiver is a maninthemiddle (In that way, that node not transmit)
         	man_in_the_midle = 1;
 	    comunication=1;
     	return bufPtr;
@@ -219,7 +220,7 @@ implementation {
       printf("\n");
       
       IV_i=rcm->IV;
-      printf("IV string:%i\n",IV_i);
+      //printf("IV string:%i\n",IV_i);
       updateKey(key,key_tmp,IV_i);
       
    	  call AES.aes_decrypt(input, output, key_tmp, size);
@@ -243,10 +244,7 @@ implementation {
    	  	call Leds.led0On();
    	  	call Leds.led2Off();
    	  }
-   	  	
-      
       printf("\n");
-      
       
       //----------------------------------------
       return bufPtr;
