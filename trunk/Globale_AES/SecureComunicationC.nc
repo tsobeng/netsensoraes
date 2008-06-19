@@ -105,57 +105,56 @@ implementation {
       
       //----------------------------------------
       //Section of packet encripting and setting
-	  rcm->nodeid = TOS_NODE_ID;
-      rcm->IV = counter;
+	rcm->nodeid = TOS_NODE_ID;
+      	rcm->IV = counter;
       
       //Stert the criptograpy part
-       memset(input,0,16);
-	   memset(output,0,16);
+        memset(input,0,16);
+	memset(output,0,16);
 	   
-	  //Input data to send to the other nodes
-		input[0]=3;
-	    input[1]=2;
+      //Static example of input data to send to the other nodes
+	input[0]=3;
+	input[1]=2;
     	input[2]=3;
-	    input[3]=0xA4;
+	input[3]=0xA4;
     	input[4]=0x5F;
-	    input[5]=0x08;
+	input[5]=0x08;
     	input[6]=0xC8;
-	    input[7]=0x89;
+	input[7]=0x89;
     	input[8]=0xB9;
-	    input[9]=0x7F;
+	input[9]=0x7F;
     	input[10]=0x59;
-	    input[11]=0x80;
+	input[11]=0x80;
     	input[12]=0x03;
-	    input[13]=0x8B;
+	input[13]=0x8B;
     	input[14]=0x83;
-   		input[15]=0x59;
+   	input[15]=0x59;
    		
-   		//Compute the checksum
-   		crc=0;
-   		for(k0=0;k0<16;k0++){
-   			crc = crc+input[k0];
-   		}
-   		rcm->crc = crc; //Set the check sum of the packet
-   		//dbg("aes","Checksum... (%d - %d)\n",crc,rcm->crc);	
+      //Compute the checksum
+   	crc=0;
+   	for(k0=0;k0<16;k0++){
+   		crc = crc+input[k0];
+   	}
+   	rcm->crc = crc; //Set the check sum of the packet
+   	//dbg("aes","Checksum... (%d - %d)\n",crc,rcm->crc);	
    		
-   		/* the cipher key size */
-   		size = 16;
+   	/* the cipher key size */
+   	size = 16;
    		 
-   		/* use IV_i to change key */
-	    IV_i=counter;
+   	/* use IV_i to change key */
+	IV_i=counter;
     	updateKey(key,key_tmp,IV_i);
     	
         call AES.aes_encrypt(input, output, key_tmp, size);
    		
-	  for(k0=0;k0<16;k0++){
-		  rcm->data[k0]=output[k0]; 
-	   }
-	  
-	  dbg("aes","Crypted Data:   ");
-	  for(k0=0;k0<16;k0++){
-      	printf("%3d ",rcm->data[k0]);
-      }
-      printf("\n");
+	for(k0=0;k0<16;k0++){
+	  rcm->data[k0]=output[k0]; 
+	}
+	dbg("aes","Crypted Data:   ");
+	for(k0=0;k0<16;k0++){
+      		printf("%3d ",rcm->data[k0]);
+        }
+        printf("\n");
       
       dbg("aes","Original:       ");
       for(k0=0;k0<16;k0++){
@@ -165,7 +164,7 @@ implementation {
       
       //----------------------------------------
       if (call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(sec_com_aes_msg_t)) == SUCCESS) {
-		dbg("com", "SecureComunicationC: packet sent.\n", counter);	
+	dbg("com", "SecureComunicationC: packet sent.\n", counter);	
 	locked = TRUE;
       }
     }
@@ -185,10 +184,10 @@ implementation {
       if(rcm->crc == 0){ //If the node receive a packet with crc=0 that mean the packet contein the information of the key
     	dbg("aes","Key set: ");
     	for(k0=0;k0<16;k0++){
-			key[k0]=rcm->data[k0];
-	    }
-	    for(k0=0;k0<16;k0++){
-      	  printf("%3d ",key[k0]);	
+	  key[k0]=rcm->data[k0];
+	}
+	for(k0=0;k0<16;k0++){
+      		printf("%3d ",key[k0]);	
         }
         printf("\n");
         if(rcm->IV==999) //If the IV is set to 999, that mean the receiver is a maninthemiddle (In that way, that node not transmit)

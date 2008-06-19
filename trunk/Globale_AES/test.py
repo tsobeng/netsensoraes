@@ -7,9 +7,7 @@ t = Tossim([])
 m = t.mac();
 r = t.radio()
 
-
-f_aes = open("aes.txt", "w")
-t.addChannel("aes", sys.stdout); # f_aes)
+t.addChannel("aes", sys.stdout);
 t.addChannel("com", sys.stdout)
 t.addChannel("sys", sys.stdout)
 
@@ -44,7 +42,7 @@ for i in range(1, 4):
 for i in range(0, 10):
   t.runNextEvent();
 
-#Send the rigth key
+#Send the rigth key to the first two nodes
 key = [0x00,0x01,0x02,0x03,0x05,0x06,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12];
 msg = SecureKeyMsg()
 msg.set_nodeid(0);
@@ -62,7 +60,7 @@ pkt.setType(msg.get_amType())
 pkt.setDestination(2)
 pkt.deliver(2, t.time()+1)
 
-
+#Send the wrong key to the thirth nodes (the man in the middle)
 fake_key = [0xdd,0xa1,0x02,0x04,0x05,0xff,0x07,0x08,0x0A,0x0B,0x0C,0x0D,0x0F,0x10,0x11,0x12];
 msg1 = SecureKeyMsg()
 msg1.set_nodeid(0);
